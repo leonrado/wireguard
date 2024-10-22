@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:1.0.20210914
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - SERVERURL=192.168.68.114 # IP que os clients vao usar para se conectar.
+      - SERVERPORT=51820 # Porta do WireGuard
+      - PEERS=3 # Número de peers
+      - PEERDNS=8.8.8.8 #
+      - INTERNAL_SUBNET=10.13.13.0 # Subrede interna usada pelo WireGuard
+      - ALLOWEDIPS=10.13.13.0/24,192.168.56.0/24
+      - LOG_CONFS=true # Habilitar logging de configurações
+    volumes:
+      - /home/vagrant/shared/wiereguard-config:/config # Configuração armazenada na VM
+      - /lib/modules:/lib/modules #optional
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
